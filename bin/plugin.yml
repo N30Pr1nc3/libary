@@ -1,0 +1,6 @@
+name: MyraliaFunctions
+version: 0.1
+author: NeoPrince
+website: http://myralia.de
+main: de.myralia.plugin.plugin
+commands:
