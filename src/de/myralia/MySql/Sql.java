@@ -1,38 +1,30 @@
 package de.myralia.MySql;
 
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
+import java.util.ArrayList;
 
 public class Sql {
-    private static Connection con = null;
-	private static String dbHost = "localhost"; // Hostname test
-	private static String dbPort = "3306";      // Port -- Standard: 3306
-	private static String dbName = "";   // Datenbankname
-	private static String dbUser = "";     // Datenbankuser
-	private static String dbPass = "";      // Datenbankpasswort
+
+	private static ArrayList<Sql> connections = new ArrayList<Sql>();	
 	
-	public static void connect(String _dbhost,String _dbport,String _dbname,String _dbuser,String _dbpass){
-		dbHost = _dbhost;
-		dbPort = _dbport;
-		connect( _dbname, _dbuser, _dbpass);
+	public static void connect(String _dbhost,int _dbport,String _dbname,String _dbuser,String _dbpass){
+		connections.add(new Sql(_dbhost, _dbport, _dbname, _dbuser, _dbpass));
 	}
 	
 	public static void connect(String _dbname,String _dbuser,String _dbpass){
-		dbName = _dbname;		
-		dbUser = _dbuser;
-		dbPass = _dbpass;
-		connect();
+		connect("localhost",3306, _dbname, _dbuser, _dbpass);
 	}
 	
-	public static void connect(){
+	private Connection con;
+	
+	private Sql(String _dbhost,int _dbport,String _dbname,String _dbuser,String _dbpass){
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			con = DriverManager.getConnection("jdbc:mysql://"+dbHost+":"+ dbPort+"/"+dbName+"?"+"user="+dbUser+"&"+"password="+dbPass);
+			this.con = DriverManager.getConnection("jdbc:mysql://"+_dbhost+":"+ _dbport+"/"+_dbname+"?"+"user="+_dbuser+"&"+"password="+_dbpass);
 	    } catch (ClassNotFoundException e) {
 	        System.out.println("Treiber nicht gefunden");
 	    } catch (SQLException e) {
@@ -41,13 +33,9 @@ public class Sql {
 	        System.out.println("SQLState: " + e.getSQLState());
 	        System.out.println("VendorError: " + e.getErrorCode());
 	    }	
-	}
+	}	
 	 	
-	public static ResultSet getLocations(String _sql){
-		if(con == null)
-		{
-			connect();
-		}	     
+	public ResultSet getResult(String _sql){    
 		try {
 			Statement query;
 			query = con.createStatement();
